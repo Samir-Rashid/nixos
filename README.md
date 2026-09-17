@@ -1,155 +1,150 @@
 # nix-config
 
-Framework Laptop 16 (AMD Ryzen 7 7840HS), NixOS unstable, flakes.
+Framework Laptop 16 (AMD Ryzen 7 7840HS). NixOS unstable, flakes.
 
-This repo is the source of truth. `/etc/nixos` is leftover from the installer
-and can be ignored.
+This repo is the source of truth. Install from it; do not layer it onto an
+existing installer disk. `nixos-rebuild switch` on the current machine
+(hostname `nixos`, `/` as btrfs top-level) will not boot — Disko now owns
+mounts as `subvol=sysroot` on `/dev/mapper/cryptroot`.
 
 ```
-sudo nixos-rebuild switch --flake .
-# or, after this config is active:
+# after install:
 nh os switch
+# or
+just r
 ```
 
-Do not rebuild until you have read the design notes below. The config is
-written so `nix build` can test it without activating anything.
+## Install from scratch
+
+Needs: this flake (git remote or USB), a NixOS installer ISO, Secure Boot
+off, the Samsung NVMe still at the by-id path in `hosts/framework16/disko.nix`.
+
+**This wipes the NVMe.** Two LUKS passphrases (swap then root); using the
+same one is fine.
+
+1. Boot the NixOS installer. Get a network. Clone or copy this repo and `cd`
+   into it.
+
+2. Confirm the disk:
+
+   ```
+   ls -l /dev/disk/by-id/nvme-SAMSUNG_MZVL21T0HDLU-00B07_S77WNE0WB01922
+   ```
+
+   If that name moved, edit `disko.nix` before formatting.
+
+3. Format and mount (pinned `disko` from this flake, not floating github):
+
+   ```
+   sudo nix --extra-experimental-features "nix-command flakes" run .#disko -- \
+     --mode destroy,format,mount --flake .#framework16
+   ```
+
+   Layout: 1G ESP, 32G LUKS swap (`cryptswap`), rest LUKS btrfs (`cryptroot`)
+   with subvolumes `sysroot` → `/`, `home`, `nix`, `persist`.
+
+4. Login hash (read at activation from persist; not in git):
+
+   ```
+   sudo mkdir -p /mnt/persist/secrets
+   mkpasswd -m yescrypt | sudo tee /mnt/persist/secrets/shrimp-password
+   sudo chmod 600 /mnt/persist/secrets/shrimp-password
+   ```
+
+5. Install:
+
+   ```
+   sudo nixos-install --flake .#framework16
+   ```
+
+   Set a **root** password if asked — it is only for the installer session.
+   The installed system has `root` locked (`hashedPassword = "!"`); shrimp
+   sudoes.
+
+6. Put the flake on the persistent home:
+
+   ```
+   sudo mkdir -p /mnt/home/shrimp/Documents
+   sudo cp -a . /mnt/home/shrimp/Documents/nix-config
+   sudo chown -R 1000:1000 /mnt/home/shrimp
+   ```
+
+7. `sudo umount -R /mnt`, reboot, pull the USB. Unlock LUKS, log in as
+   `shrimp`. `findmnt /` should show `subvol=/sysroot`. `/persist` should be
+   mounted. The next reboot wipes `sysroot`; home, nix, and persist stay.
+
+8. After first login:
+
+   ```
+   fwupdmgr refresh && fwupdmgr update
+   fprintd-enroll
+   # if you later enable sshd / agenix host keys:
+   # cat /etc/ssh/ssh_host_ed25519_key.pub  → secrets.nix systems → just rekey
+   ```
 
 ## Layout
 
 ```
-flake.nix                         inputs + nixosConfigurations.nixos
+flake.nix                         inputs + nixosConfigurations.framework16
+overlays/default.nix              grok-bot + grok-build (not NUR)
+modules/nixos/                    nix, GNOME, locale, ssh (off), HM
 Justfile                          just r / just build / just secret …
 hosts/framework16/
   default.nix                     this machine
-  hardware-configuration.nix      live mounts (installer)
-  disko.nix                       disk recipe, enableConfig = false
-  impermanence.nix                persist/rollback, both off
-  borg.nix                        borg job, off until repo + passphrase
+  hardware.nix                    kernel modules only
+  disko.nix                       GPT + LUKS + btrfs; enableConfig = true
+  impermanence.nix                persist whitelist + initrd rollback
+  borg.nix                        borg job, off until a remote repo
   stylix.nix                      palette/fonts/cursor (catppuccin-mocha)
-home/
-  shrimp.nix                      git, bash, starship, direnv
-  grok.nix                        grok-bot + grok-build
-  firefox.nix / vscode.nix / thunderbird.nix / neovim.nix / ghostty.nix / fish.nix
-pkgs/grok-build.nix               overlay: current grok CLI (nixpkgs pin is 0.2.93)
+home/                             HM module (deployed by nixos-rebuild)
+  firefox.nix                     addons from extraSpecialArgs.firefoxAddons
+pkgs/grok-build.nix               grok CLI overlay (nixpkgs pin is 0.2.93)
 secrets/secrets.nix               agenix recipients (CLI only)
 ```
 
-A flake has **inputs** (pinned elsewhere) and **outputs** (what we produce).
-`flake.lock` freezes every input to a git revision. `nix flake update` moves
-those pins; you usually update one input at a time.
+`nixosConfigurations.framework16`, `networking.hostName`, and Justfile
+`uname -n` must stay identical.
 
-`nixosConfigurations.nixos` is the system. The attribute name matches
-`networking.hostName`, which is how `nixos-rebuild --flake .` finds it.
+## Design
 
-## Design decisions
+**Disko owns the disk.** `enableConfig = true` generates `fileSystems`,
+LUKS, and swap. `hardware.nix` is modules and CPU only. Formatting is the
+disko CLI in the install section, never `nixos-rebuild`.
 
-**Home Manager is a NixOS module, not standalone.** One rebuild deploys the
-OS and your home. `home-manager switch` is a different workflow (dotfiles on
-a machine you do not control). `useGlobalPkgs` means HM uses the same
-`pkgs` as NixOS, including `allowUnfree`.
+**Ephemeral `/`.** `sysroot` is wiped in initrd (systemd unit
+`rollback-sysroot`, not `postResumeCommands`). `/home` and `/nix` stay.
+State that must survive is the list in `impermanence.nix` plus
+`/persist/secrets/shrimp-password`. Full-home impermanence is a later
+project.
 
-**nixos-hardware for `framework-16-7040-amd`.** This is the official quirk
-set: AMD pstate, power-profiles-daemon, fingerprint, fwupd, the AMD PSR hang
-workaround, Framework keyboard HID udev rules. We do not re-encode those by
-hand.
+**Home Manager is a NixOS module.** One rebuild deploys OS and home.
+`useGlobalPkgs` shares `pkgs` (including `allowUnfree`). Firefox add-ons
+are `extraSpecialArgs.firefoxAddons` (NUR rycee), not a global overlay.
 
-**GNOME stays.** You already have it. Hyprland is a later choice, not a
-prerequisite.
+**nixos-hardware `framework-16-7040-amd`.** AMD pstate, fingerprint, fwupd,
+PSR workaround, keyboard HID. Do not re-encode those.
 
-**NetworkManager only.** The installer left `networking.wireless.enable =
-true` next to NetworkManager. Those two fight over wpa_supplicant. GNOME
-expects NM.
+**GNOME + GDM on Wayland.** NetworkManager only (not `networking.wireless`).
+`NIXOS_OZONE_WL=1` for Electron. sshd is off.
 
-**Neovim via `programs.neovim`, not nixvim.** You can read the lua. Plugins
-come from `pkgs.vimPlugins`. Language servers go in `extraPackages` (do not
-use mason.nvim — it downloads binaries that ignore the Nix store). nixvim or
-nvf are reasonable later if this file grows teeth.
+**Neovim via `programs.neovim`.** Servers in `extraPackages`, not mason.nvim.
 
-**Ghostty via `programs.ghostty`.** Settings are Nix attrs that HM writes to
-`~/.config/ghostty/config`. Font and theme come from Stylix.
+**Stylix** is the one palette. NixOS module only (it auto-imports into HM).
+`enableReleaseChecks` is off: nixpkgs and stylix are July 2026 pins, not a
+named release pair.
 
-**Stylix** is the single palette (catppuccin-mocha), fonts, and cursor.
-Imported only as a NixOS module; it auto-imports into Home Manager. Do not
-also import the HM module. `enableReleaseChecks` is off because nixpkgs is
-pinned older than stylix master.
+**Fish** is login + interactive. NixOS `programs.fish.enable` for vendor
+completions; HM owns the config.
 
-**Fish** is the login + interactive shell. NixOS `programs.fish.enable` is
-required for vendor completions; HM `programs.fish` is the config. Bash
-stays enabled for POSIX scripts. Starship is the prompt.
+**`stateVersion` is `26.11`.** Compatibility floor, not "current release".
+Do not bump.
 
-**Impermanence is configured, not armed.** See the next section.
-
-**`system.stateVersion` stays `26.05`.** It is a compatibility floor for
-stateful data, not "the release I am on". Same idea for
-`home.stateVersion = "26.11"`.
-
-## Impermanence (read this)
-
-Your disk today:
-
-| mount | btrfs subvolume | fate |
-|-------|-----------------|------|
-| `/` | top-level (id 5) | must not wipe |
-| `/home` | `home` | persistent |
-| `/nix` | `nix` | persistent |
-| `/boot` | ESP | persistent |
-| *(none)* | `persist` / `sysroot` | created empty by the helper script |
-| `/srv`, `/tmp`, `/var/tmp`, `/var/lib/{portables,machines}` | installer/systemd leftovers | leave them |
-
-Wiping `/` while it is the top-level volume would also take `home` and `nix`
-with it. So both flags in `hosts/framework16/default.nix` are `false`.
-
-The ephemeral-root subvolume is named **`sysroot`**, not `root`. While `/`
-is the top-level, `/root` is the root user's home, so `btrfs subvolume
-create …/root` fails with "File exists".
-
-Intended layout, when you are ready:
-
-- `sysroot` → `/` (fresh each boot, old copies kept ~30 days)
-- `home` → `/home` (your files stay; we are **not** making `$HOME` ephemeral)
-- `nix` → `/nix`
-- `persist` → `/persist` (only the paths listed in `impermanence.nix`)
-- ESP → `/boot`
-
-Steps, in order:
-
-1. Review `hosts/framework16/impermanence.nix`.
-2. `./scripts/create-persist-subvolume.sh` — creates empty `persist` and
-   `sysroot` subvolumes. Does not change mounts. Idempotent.
-3. Set `my.impermanence.enable = true;`, rebuild, confirm `/persist` mounts.
-   Leave `rollbackRoot = false`.
-4. Do **not** enable `rollbackRoot` yet. That option still uses
-   `boot.initrd.postResumeCommands`, which this nixpkgs rejects (systemd
-   stage 1). Live-migrating `/` onto `sysroot` is a separate project, after
-   backups.
-
-`/home` stays a real subvolume on purpose. Full-home impermanence is a
-separate, much more annoying project (`~/.ssh`, browser profiles, GNOME
-dconf, every app's `~/.local/share/...`).
-
-## Trying this without switching
-
-```
-nix -L build .#nixosConfigurations.nixos.config.system.build.toplevel
-```
-
-That builds a system closure and leaves a `./result` symlink. It does **not**
-change the running generation. `ls result` is the new `/run/current-system`
-you would get after `switch`.
-
-## After you switch
-
-```
-fwupdmgr refresh && fwupdmgr update    # Framework firmware
-fprintd-enroll                         # fingerprint
-```
-
-## Everyday commands (`just`)
+## Everyday commands
 
 ```
 just              # list recipes
-just build        # build ./result, do not switch
-just r            # alias: just rebuild  (switch)
+just build        # ./result, do not switch
+just r            # nixos-rebuild switch --flake .#$(uname -n)
 just rebuild boot
 just update nixpkgs
 just secret borg-passphrase
@@ -158,61 +153,39 @@ just fmt
 
 ## Grok Bot + Grok Build
 
-Both are unfree binaries. `allowUnfree` is already on.
+Unfree; `allowUnfree` is on.
 
-**Grok Bot** (desktop) comes from `github:d-513/grok-bot-nix`. The overlay
-puts `pkgs.grok-bot` on your PATH and `XDG_DATA_DIRS` so `sand://` /
-`grokbot://` login redirects work. Wayland is already covered by
-`NIXOS_OZONE_WL`. The in-app updater does not work under Nix:
+Grok Bot is `github:d-513/grok-bot-nix` (`pkgs.grok-bot`). Needs
+`home.packages` so the `.desktop` file is on `XDG_DATA_DIRS` (`sand://` /
+`grokbot://`). In-app update does not work:
 
 ```
 just update grok-bot-nix
 just r
 ```
 
-**Grok Build** (`grok` / `agent`) is overlaid in `pkgs/grok-build.nix`.
-This flake's nixpkgs pin still has 0.2.93; the overlay matches the 1.0.x
-you already run from `~/.grok/bin`. Bump `version` + `hash` there when
-you want a newer CLI. `GROK_DISABLE_AUTOUPDATER=1` is set so the TUI
-does not fight the store.
+Grok Build (`grok` / `agent`) is `pkgs/grok-build.nix`. This nixpkgs pin
+still has 0.2.93; bump `version` + `hash` there. `GROK_DISABLE_AUTOUPDATER=1`.
 
 ## agenix
 
-`secrets/secrets.nix` lists who can decrypt. It is **not** imported by NixOS;
-only the `agenix` CLI reads it.
+`secrets/secrets.nix` is **not** imported by NixOS; only the CLI reads it.
 
-A user ed25519 key was generated at `~/.ssh/id_ed25519` so you can encrypt
-secrets today. After the first switch, openssh writes a host key — add that
-pubkey to `systems` in `secrets.nix` and `just rekey`. Without the host key
-in the recipient list, activation cannot decrypt secrets.
+Encrypt today with the user key in that file. After install, add
+`/etc/ssh/ssh_host_ed25519_key.pub` to `systems` and `just rekey`. Without
+the host key as a recipient, activation cannot decrypt secrets.
 
 ## Borg
 
-`my.borg.enable` is false. When you have a repo (BorgBase, another machine,
-or `/var/backup/borg`):
+`my.borg.enable` is false. When you have a **remote** repo:
 
 1. `just secret borg-passphrase`
 2. set `my.borg.repo` and `my.borg.enable = true`
 3. rebuild
 
-## Disko
+`my.borg.repo` has no default; enable requires a remote URL.
 
-`hosts/framework16/disko.nix` matches this Samsung 1TB NVMe (1G ESP, LUKS
-btrfs, LUKS swap). `disko.enableConfig = false`: live mounts still come from
-`hardware-configuration.nix`. `just disko` refuses to run; formatting is a
-separate, destructive CLI.
+## Later
 
-## Ideas for next
-
-| thing | why |
-|-------|-----|
-| **stylix** | one theme for GNOME + ghostty + nvim |
-| **Hyprland** | if GNOME starts to feel like someone else's computer |
-| **tailscale** | overlay network to other machines |
-| **1Password** | `programs._1password` + `_1password-gui` |
-| **steam** | `programs.steam.enable` (unfree, 32-bit) |
-| **nix-vscode-extensions** | marketplace extensions nixpkgs doesn't package |
-| **NVIDIA dGPU module** | only if you seat the FW16 NVIDIA expansion |
-
-Firmware and fingerprint are already enabled by nixos-hardware. You just have
-to run the two commands above once.
+Hyprland, Tailscale, 1Password, Steam, `nix-vscode-extensions`, NVIDIA
+expansion module if you seat the dGPU.

@@ -1,5 +1,5 @@
 # Home Manager config for user `shrimp`.
-# This is imported by the NixOS module in hosts/framework16/default.nix,
+# This is imported by modules/nixos/home-manager.nix,
 # so it is applied on `nixos-rebuild switch` / `nh os switch`.
 { pkgs, ... }:
 
@@ -75,7 +75,6 @@
 
   # GNOME color-scheme / GTK / cursor come from Stylix now.
 
-  # Same rule as system.stateVersion: this is a compatibility floor.
-  # You already set 26.11; leave it.
+  # Compatibility floor, same generation as system.stateVersion. Do not bump.
   home.stateVersion = "26.11";
 }

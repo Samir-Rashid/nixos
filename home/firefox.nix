@@ -1,7 +1,7 @@
 # Firefox via Home Manager so extensions are declarative.
-# Add-ons come from NUR (rycee). Search-engine "extensions" in an AMO export
-# (Amazon, Bing, Google, Wikipedia, …) are not add-ons; DDG is the default
-# search instead.
+# Add-ons come from extraSpecialArgs.firefoxAddons (NUR rycee, not a
+# global overlay). Search-engine "extensions" in an AMO export (Amazon,
+# Bing, Google, Wikipedia, …) are not add-ons; DDG is the default search.
 #
 # Skipped on purpose:
 #   Bypass Paywalls*     — gone from AMO / legally messy
@@ -10,11 +10,8 @@
 #   Video DownloadHelper — needs a native helper daemon
 #   themes               — Dark/Light/Alpenglow/System are built-in
 #   Add-ons Search Detection — built-in
-{ pkgs, ... }:
+{ firefoxAddons, ... }:
 
-let
-  addons = pkgs.nur.repos.rycee.firefox-addons;
-in
 {
   programs.firefox = {
     enable = true;
@@ -28,7 +25,7 @@ in
         "browser.startup.page" = 3; # restore previous session
         "browser.warnOnQuitShortcut" = false;
         "privacy.donottrackheader.enabled" = true;
-        "signon.rememberSignons" = false; # bitwarden owns this
+        "signon.rememberSignons" = false; # Bitwarden / KeePassXC, not Firefox
       };
       search = {
         default = "ddg";
@@ -39,12 +36,10 @@ in
           "ebay".metaData.hidden = true;
         };
       };
-      # Tree Style Tab replaces the horizontal bar. Tweak in about:addons
-      # if you decide you want both.
       userChrome = ''
         #TabsToolbar { visibility: collapse !important; }
       '';
-      extensions.packages = with addons; [
+      extensions.packages = with firefoxAddons; [
         ublock-origin
         bitwarden
         darkreader

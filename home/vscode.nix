@@ -4,7 +4,7 @@
 #
 # Not brought over (on purpose):
 #   TabNine                  — Copilot covers this
-#   vscodevim + vscode-neovim — neovim only; one modal editor is enough
+#   vscodevim + vscode-neovim — neovim is the modal editor; VS Code is GUI
 #   Java pack / checkstyle   — huge; add when you next open a Java repo
 #   GitHub Classroom         — course-specific
 #   vsliveshare-audio        — deprecated
@@ -37,48 +37,170 @@ in
       enableExtensionUpdateCheck = false;
       enableUpdateCheck = false;
       extensions = pick [
-        [ "jnoortheen" "nix-ide" ]
-        [ "mkhl" "direnv" ]
-        [ "asvetliakov" "vscode-neovim" ]
-        [ "rust-lang" "rust-analyzer" ]
-        [ "tamasfe" "even-better-toml" ]
-        [ "serayuzgur" "crates" ]
-        [ "golang" "go" ]
-        [ "ms-python" "python" ]
-        [ "ms-python" "vscode-pylance" ]
-        [ "charliermarsh" "ruff" ]
-        [ "ms-toolsai" "jupyter" ]
-        [ "ms-toolsai" "jupyter-keymap" ]
-        [ "ms-toolsai" "jupyter-renderers" ]
-        [ "ms-vscode" "cpptools" ]
-        [ "ms-vscode" "cpptools-extension-pack" ]
-        [ "ms-vscode" "cmake-tools" ]
-        [ "ms-vscode" "makefile-tools" ]
-        [ "twxs" "cmake" ]
-        [ "ms-azuretools" "vscode-docker" ]
-        [ "ms-vscode-remote" "remote-ssh" ]
-        [ "ms-vscode-remote" "remote-containers" ]
-        [ "ms-vscode-remote" "remote-ssh-edit" ]
-        [ "ms-vscode" "remote-explorer" ]
-        [ "eamodio" "gitlens" ]
-        [ "donjayamanne" "githistory" ]
-        [ "github" "vscode-pull-request-github" ]
-        [ "github" "copilot" ]
-        [ "github" "copilot-chat" ]
-        [ "dbaeumer" "vscode-eslint" ]
-        [ "esbenp" "prettier-vscode" ]
-        [ "DavidAnson" "vscode-markdownlint" ]
-        [ "streetsidesoftware" "code-spell-checker" ]
-        [ "timonwong" "shellcheck" ]
-        [ "Gruntfuggly" "todo-tree" ]
-        [ "usernamehw" "errorlens" ]
-        [ "christian-kohler" "path-intellisense" ]
-        [ "naumovs" "color-highlight" ]
-        [ "ms-vsliveshare" "vsliveshare" ]
-        [ "vscode-icons-team" "vscode-icons" ]
-        [ "James-Yu" "latex-workshop" ]
-        [ "humao" "rest-client" ]
-        [ "VisualStudioExptTeam" "vscodeintellicode" ]
+        [
+          "jnoortheen"
+          "nix-ide"
+        ]
+        [
+          "mkhl"
+          "direnv"
+        ]
+        [
+          "rust-lang"
+          "rust-analyzer"
+        ]
+        [
+          "tamasfe"
+          "even-better-toml"
+        ]
+        [
+          "serayuzgur"
+          "crates"
+        ]
+        [
+          "golang"
+          "go"
+        ]
+        [
+          "ms-python"
+          "python"
+        ]
+        [
+          "ms-python"
+          "vscode-pylance"
+        ]
+        [
+          "charliermarsh"
+          "ruff"
+        ]
+        [
+          "ms-toolsai"
+          "jupyter"
+        ]
+        [
+          "ms-toolsai"
+          "jupyter-keymap"
+        ]
+        [
+          "ms-toolsai"
+          "jupyter-renderers"
+        ]
+        [
+          "ms-vscode"
+          "cpptools"
+        ]
+        [
+          "ms-vscode"
+          "cpptools-extension-pack"
+        ]
+        [
+          "ms-vscode"
+          "cmake-tools"
+        ]
+        [
+          "ms-vscode"
+          "makefile-tools"
+        ]
+        [
+          "twxs"
+          "cmake"
+        ]
+        [
+          "ms-azuretools"
+          "vscode-docker"
+        ]
+        [
+          "ms-vscode-remote"
+          "remote-ssh"
+        ]
+        [
+          "ms-vscode-remote"
+          "remote-containers"
+        ]
+        [
+          "ms-vscode-remote"
+          "remote-ssh-edit"
+        ]
+        [
+          "ms-vscode"
+          "remote-explorer"
+        ]
+        [
+          "eamodio"
+          "gitlens"
+        ]
+        [
+          "donjayamanne"
+          "githistory"
+        ]
+        [
+          "github"
+          "vscode-pull-request-github"
+        ]
+        [
+          "github"
+          "copilot"
+        ]
+        [
+          "github"
+          "copilot-chat"
+        ]
+        [
+          "dbaeumer"
+          "vscode-eslint"
+        ]
+        [
+          "esbenp"
+          "prettier-vscode"
+        ]
+        [
+          "DavidAnson"
+          "vscode-markdownlint"
+        ]
+        [
+          "streetsidesoftware"
+          "code-spell-checker"
+        ]
+        [
+          "timonwong"
+          "shellcheck"
+        ]
+        [
+          "Gruntfuggly"
+          "todo-tree"
+        ]
+        [
+          "usernamehw"
+          "errorlens"
+        ]
+        [
+          "christian-kohler"
+          "path-intellisense"
+        ]
+        [
+          "naumovs"
+          "color-highlight"
+        ]
+        [
+          "ms-vsliveshare"
+          "vsliveshare"
+        ]
+        [
+          "vscode-icons-team"
+          "vscode-icons"
+        ]
+        [
+          "James-Yu"
+          "latex-workshop"
+        ]
+        [
+          "humao"
+          "rest-client"
+        ]
+        [
+          "VisualStudioExptTeam"
+          "vscodeintellicode"
+        ]
       ];
       userSettings = {
         "editor.fontFamily" = "JetBrainsMono Nerd Font";
@@ -89,7 +211,6 @@ in
         "files.trimTrailingWhitespace" = true;
         "nix.enableLanguageServer" = true;
         "nix.serverPath" = "nil";
-        "vscode-neovim.neovimExecutablePaths.linux" = "nvim";
       };
     };
   };

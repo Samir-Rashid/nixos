@@ -4,8 +4,9 @@
 #
 # Do not also import stylix.homeModules.stylix — that duplicates options.
 #
-# Release checks are off: nixpkgs and stylix are both July 2026 pins, but
-# not a named "26.11" release pair. Flip this on after a joint update.
+# Release checks stay false until a *joint* nixpkgs + stylix update.
+# Never `just update stylix` or `just update-all` without that pairing:
+# stylix master uses services.displayManager.regreet, this nixpkgs does not.
 { pkgs, ... }:
 
 {

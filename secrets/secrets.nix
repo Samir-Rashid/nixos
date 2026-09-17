@@ -5,7 +5,7 @@
 #   cat /etc/ssh/ssh_host_ed25519_key.pub
 # and add it to `systems`. Then `cd secrets && agenix --rekey`.
 let
-  shrimp = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAII2OwPKXZmKH/djc29D/VFQFMopIzSDzlhc5Ywbu7RUO shrimp@nixos";
+  shrimp = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAII2OwPKXZmKH/djc29D/VFQFMopIzSDzlhc5Ywbu7RUO shrimp@framework16";
   users = [ shrimp ];
 
   # systems = [ "ssh-ed25519 AAAA... root@nixos" ];

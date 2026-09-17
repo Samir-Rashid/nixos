@@ -12,8 +12,9 @@ help:
 alias u := update
 alias r := rebuild
 
-# update one flake input (default: all, via update-all)
-update INPUT:
+# `just update` → all inputs; `just update nixpkgs` → one input.
+# Do not update stylix without nixpkgs (or vice versa); see flake.nix.
+update INPUT="":
     nix flake update {{INPUT}}
 
 update-all:
@@ -56,8 +57,8 @@ secret NAME:
 rekey:
     cd secrets && agenix --rekey
 
-# DESTRUCTIVE. formats the disk according to hosts/framework16/disko.nix.
-# nixos-rebuild never does this. you almost never want this on a running install.
+# DESTRUCTIVE. Refuses to run from a booted install — see README.
 disko:
     @echo "This would WIPE the Samsung NVMe. Refusing to run from just."
-    @echo "If you really mean it: sudo nix run github:nix-community/disko -- --mode destroy,format,mount --flake .#{{hostname}}"
+    @echo "From a NixOS live USB (locked disko from this flake):"
+    @echo "  sudo nix run .#disko -- --mode destroy,format,mount --flake .#{{hostname}}"

@@ -1,11 +1,11 @@
-# Borg is installed. The systemd backup *job* stays off until you have
-# a repo URL and an agenix passphrase.
+# Borg is on PATH. The systemd job stays off until you have a *remote*
+# repo and an agenix passphrase. Never point repo at this disk.
 #
-# Turn-on checklist:
-#   1. just secret borg-passphrase     # encrypt a passphrase
-#   2. set my.borg.repo to an ssh/local path
-#   3. set my.borg.enable = true
-#   4. rebuild, then: sudo borg-job-home init   (or doInit = true below)
+# Turn-on:
+#   1. just secret borg-passphrase
+#   2. set my.borg.repo = "ssh://…" / BorgBase / another machine
+#   3. my.borg.enable = true
+#   4. rebuild (doInit = true runs borg init)
 {
   config,
   lib,
@@ -20,19 +20,25 @@ in
   options.my.borg = {
     enable = lib.mkEnableOption "daily borgbackup job for /home (needs repo + passphrase)";
     repo = lib.mkOption {
-      type = lib.types.str;
-      default = "/var/backup/borg";
+      type = lib.types.nullOr lib.types.str;
+      default = null;
       description = ''
-        Borg repo URL. Local path, or `ssh://user@host/path`, or a BorgBase
-        `xxx@xxx.repo.borgbase.com:repo`. Change this before enabling.
+        Borg repo URL. Must be off this disk: `ssh://user@host/path` or
+        BorgBase `xxx@xxx.repo.borgbase.com:repo`. Required when enable = true.
       '';
     };
   };
 
   config = {
+    assertions = [
+      {
+        assertion = !cfg.enable || (cfg.repo != null && cfg.repo != "");
+        message = "my.borg.enable requires my.borg.repo (ssh://, BorgBase, or another machine — not this NVMe).";
+      }
+    ];
+
     environment.systemPackages = [ pkgs.borgbackup ];
 
-    # Decrypts to /run/agenix/borg-passphrase. Only referenced when enabled.
     age.secrets = lib.mkIf cfg.enable {
       borg-passphrase = {
         file = ../../secrets/borg-passphrase.age;
@@ -61,16 +67,19 @@ in
       compression = "zstd,6";
       startAt = "daily";
       persistentTimer = true;
-      # Laptop: don't spin the disk on battery.
-      inhibitsSleep = false;
+      # Don't suspend mid-create; don't start the job on battery.
+      inhibitsSleep = true;
       extraArgs = [ "--exclude-caches" ];
       prune.keep = {
         daily = 7;
         weekly = 4;
         monthly = 6;
       };
-      # Set true once the repo exists; first run will `borg init` if true.
       doInit = true;
+    };
+
+    systemd.services.borgbackup-job-home = lib.mkIf cfg.enable {
+      unitConfig.ConditionACPower = "true";
     };
   };
 }
