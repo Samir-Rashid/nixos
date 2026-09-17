@@ -20,6 +20,10 @@
       nixfmt
       ripgrep
       fd
+      rust-analyzer
+      gopls
+      pyright
+      ruff
     ];
 
     plugins = with pkgs.vimPlugins; [
@@ -42,6 +46,7 @@
           json
           lua
           markdown
+          go
           nix
           python
           rust

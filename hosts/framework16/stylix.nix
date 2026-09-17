@@ -31,6 +31,10 @@
         package = pkgs.liberation_ttf;
         name = "Liberation Serif";
       };
+      emoji = {
+        package = pkgs.noto-fonts-color-emoji;
+        name = "Noto Color Emoji";
+      };
       sizes.terminal = 12;
     };
 

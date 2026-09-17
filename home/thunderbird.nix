@@ -1,3 +1,4 @@
+# TODO: add real accounts/identity; this is an empty default profile.
 { ... }:
 
 {

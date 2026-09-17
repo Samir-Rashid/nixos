@@ -47,7 +47,10 @@ in
     };
 
     services.borgbackup.jobs.home = lib.mkIf cfg.enable {
-      paths = [ "/home/shrimp" ];
+      paths = [
+        "/home/shrimp"
+        "/persist"
+      ];
       exclude = [
         "/home/shrimp/.cache"
         "/home/shrimp/.local/share/Trash"

@@ -13,6 +13,7 @@
     ./fish.nix
     ./stylix.nix
     ./grok.nix
+    ./gnome.nix
   ];
 
   home.username = "shrimp";
@@ -33,18 +34,27 @@
     keepassxc # native host for keepassxc-browser
   ];
 
+  programs.delta = {
+    enable = true;
+    enableGitIntegration = true;
+  };
+
   programs.git = {
     enable = true;
-    # HM 26.05: userName/userEmail/extraConfig folded into settings.
     settings = {
       user = {
         name = "Samir Rashid";
         email = "Samir-Rashid@godsped.com";
+        signingKey = "~/.ssh/id_ed25519.pub";
       };
       pull.rebase = true;
       init.defaultBranch = "main";
+      gpg.format = "ssh";
+      commit.gpgsign = true;
     };
   };
+
+  programs.zoxide.enable = true;
 
   programs.bash = {
     enable = true;

@@ -35,7 +35,7 @@
 
   # --- users ---
   # Password hash lives on persist (created during install, see README).
-  # Root has no password; use sudo from shrimp or a live USB.
+  # Skip that step and GDM cannot log you in. Root has no password.
   programs.fish.enable = true;
   users.mutableUsers = false;
   users.users.root.hashedPassword = "!";

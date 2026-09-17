@@ -31,7 +31,9 @@
             settings.allowDiscards = true;
             content = {
               type = "swap";
-              resumeDevice = false;
+              # Hibernate to this LUKS swap. Rollback waits on
+              # systemd-hibernate-resume so a resume does not wipe sysroot.
+              resumeDevice = true;
             };
           };
         };

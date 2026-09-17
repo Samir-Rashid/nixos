@@ -5,5 +5,6 @@
     ./locale.nix
     ./ssh.nix
     ./home-manager.nix
+    ./laptop.nix
   ];
 }

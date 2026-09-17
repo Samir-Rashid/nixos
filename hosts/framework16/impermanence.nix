@@ -46,6 +46,7 @@ in
     wantedBy = [ "initrd.target" ];
     after = [
       "initrd-root-device.target"
+      "systemd-hibernate-resume.service"
       "local-fs-pre.target"
     ];
     before = [ "sysroot.mount" ];
@@ -61,10 +62,8 @@ in
         mv /btrfs_tmp/sysroot "/btrfs_tmp/old_roots/$timestamp"
       fi
       if [[ -d /btrfs_tmp/old_roots ]]; then
-        find /btrfs_tmp/old_roots -mindepth 1 -maxdepth 1 -mtime +30 -print0 |
-          while IFS= read -r -d "" old; do
-            btrfs subvolume delete -R "$old"
-          done
+        find /btrfs_tmp/old_roots -mindepth 1 -maxdepth 1 -mtime +30 \
+          -exec btrfs subvolume delete -R {} +
       fi
       btrfs subvolume create /btrfs_tmp/sysroot
       umount /btrfs_tmp

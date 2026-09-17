@@ -61,4 +61,4 @@ rekey:
 disko:
     @echo "This would WIPE the Samsung NVMe. Refusing to run from just."
     @echo "From a NixOS live USB (locked disko from this flake):"
-    @echo "  sudo nix run .#disko -- --mode destroy,format,mount --flake .#{{hostname}}"
+    @echo "  sudo nix run .#disko -- --mode destroy,format,mount --flake .#framework16"

@@ -26,6 +26,9 @@
         "browser.warnOnQuitShortcut" = false;
         "privacy.donottrackheader.enabled" = true;
         "signon.rememberSignons" = false; # Bitwarden / KeePassXC, not Firefox
+        "media.ffmpeg.vaapi.enabled" = true;
+        "media.hardware-video-decoding.enabled" = true;
+        "media.hardware-video-decoding.force-enabled" = true;
       };
       search = {
         default = "ddg";

@@ -78,9 +78,10 @@ same one is fine.
    ```
    fwupdmgr refresh && fwupdmgr update
    fprintd-enroll
-   # if you later enable sshd / agenix host keys:
-   # cat /etc/ssh/ssh_host_ed25519_key.pub  → secrets.nix systems → just rekey
    ```
+
+   Use the **same** LUKS passphrase for cryptroot and cryptswap so hibernate
+   resume only prompts once. Skip step 4 and GDM will not accept a login.
 
 ## Layout
 
@@ -185,7 +186,36 @@ the host key as a recipient, activation cannot decrypt secrets.
 
 `my.borg.repo` has no default; enable requires a remote URL.
 
-## Later
+## Soon after first boot
 
-Hyprland, Tailscale, 1Password, Steam, `nix-vscode-extensions`, NVIDIA
-expansion module if you seat the dGPU.
+Not required to install. Do these when the machine is boring:
+
+- TPM2 LUKS unlock (`systemd-cryptenroll`) with passphrase fallback
+- Lanzaboote / Secure Boot (install currently needs SB off)
+- Borg to a **remote**, including `/persist` (the job already lists it)
+- agenix: persist an age key (sshd is off, so no host SSH key until you enable it)
+- 1Password *or* lean harder into KeePassXC — Bitwarden is also installed
+- Tailscale; if you want SSH later, bind sshd to `tailscale0` only
+- `virt-manager` / libvirt / `podman` (VS Code has Docker/remote-containers, no runtime yet)
+- `distrobox` if you need an Ubuntu escape hatch
+- `uv`, `rustc`/`cargo`, `go` on PATH — editor extensions do not install toolchains
+- `mpv`, OBS, Signal/Discord as you actually use them
+- Framework input-module RGB / keyboard brightness via `framework-tool`
+- EasyEffects + a Framework 16 speaker preset
+- GSConnect if you live on a phone
+
+## Later / dreams
+
+- Hyprland (only when GNOME annoys you; redo screenshots, idle, portals, lid)
+- Steam + gamemode + 32-bit graphics; NVIDIA bay as a **specialisation**, not stuffed into the iGPU host
+- Home impermanence after persist+Borg are boring
+- `nix-vscode-extensions` (see TODO in `home/vscode.nix`)
+- nixvim/nvf when `nvim.lua` outgrows this file
+- Plymouth + quiet boot
+- `kanata`/`keyd` for Caps
+- YubiKey/PAM u2f in addition to fprint
+- Cachix/Attic if rebuilds hurt
+- `ollama` + ROCm on the 780M
+- Syncthing / Nextcloud
+- `opensnitch`, `iwd` as NM backend (only with a symptom)
+- Specialisations: `work` / `game` / `nvidia-bay`

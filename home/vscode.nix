@@ -1,6 +1,7 @@
 # VS Code via Home Manager. nixpkgs packages a few hundred extensions;
 # the marketplace has ~80k. `pick` skips anything not in this pin so a
 # missing attr doesn't take down the whole system.
+# TODO: fail the build on missing extensions, or switch to nix-vscode-extensions.
 #
 # Not brought over (on purpose):
 #   TabNine                  — Copilot covers this

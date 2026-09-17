@@ -58,6 +58,11 @@
       url = "github:d-513/grok-bot-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    nix-index-database = {
+      url = "github:nix-community/nix-index-database";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -72,6 +77,7 @@
       nur,
       stylix,
       grok-bot-nix,
+      nix-index-database,
       ...
     }@inputs:
     {
@@ -86,6 +92,7 @@
           agenix.nixosModules.default
           stylix.nixosModules.stylix
           home-manager.nixosModules.home-manager
+          nix-index-database.nixosModules.nix-index
           {
             nixpkgs.overlays = import ./overlays { inherit grok-bot-nix; };
           }
