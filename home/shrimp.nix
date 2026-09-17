@@ -1,0 +1,81 @@
+# Home Manager config for user `shrimp`.
+# This is imported by the NixOS module in hosts/framework16/default.nix,
+# so it is applied on `nixos-rebuild switch` / `nh os switch`.
+{ pkgs, ... }:
+
+{
+  imports = [
+    ./neovim.nix
+    ./ghostty.nix
+    ./firefox.nix
+    ./vscode.nix
+    ./thunderbird.nix
+    ./fish.nix
+    ./stylix.nix
+    ./grok.nix
+  ];
+
+  home.username = "shrimp";
+  home.homeDirectory = "/home/shrimp";
+
+  home.packages = with pkgs; [
+    fastfetch
+    ripgrep
+    fd
+    jq
+    eza
+    fzf
+    bat
+    btop
+    nix-output-monitor # `nom` — nix with a nicer build log
+    gh
+    wl-clipboard # neovim clipboard=unnamedplus on Wayland
+    keepassxc # native host for keepassxc-browser
+  ];
+
+  programs.git = {
+    enable = true;
+    # HM 26.05: userName/userEmail/extraConfig folded into settings.
+    settings = {
+      user = {
+        name = "Samir Rashid";
+        email = "Samir-Rashid@godsped.com";
+      };
+      pull.rebase = true;
+      init.defaultBranch = "main";
+    };
+  };
+
+  programs.bash = {
+    enable = true;
+    enableCompletion = true;
+    shellAliases = {
+      ls = "eza";
+      ll = "eza -l";
+      la = "eza -la";
+      cat = "bat";
+      rebuild = "nh os switch";
+    };
+  };
+
+  programs.starship.enable = true;
+  # Fish/bash integrations default on when those shells are enabled.
+
+  # Per-project nix shells, plus a cache so direnv isn't slow.
+  programs.direnv = {
+    enable = true;
+    nix-direnv.enable = true;
+  };
+
+  home.sessionVariables = {
+    EDITOR = "nvim";
+    VISUAL = "nvim";
+    TERMINAL = "ghostty";
+  };
+
+  # GNOME color-scheme / GTK / cursor come from Stylix now.
+
+  # Same rule as system.stateVersion: this is a compatibility floor.
+  # You already set 26.11; leave it.
+  home.stateVersion = "26.11";
+}
