@@ -60,8 +60,12 @@
                     "noatime"
                   ];
                 };
+                # Subvolume name stays /home so the existing tree does not
+                # move. Mounted at /persist/home, not /home: ~/ lives on
+                # sysroot and is wiped. impermanence.nix bind-mounts the
+                # whitelist back. neededForBoot is set there.
                 "/home" = {
-                  mountpoint = "/home";
+                  mountpoint = "/persist/home";
                   mountOptions = [
                     "compress=zstd"
                     "ssd"

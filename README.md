@@ -41,7 +41,7 @@ same one is fine.
    ```
 
    Layout: 1G ESP, 32G LUKS swap (`cryptswap`), rest LUKS btrfs (`cryptroot`)
-   with subvolumes `sysroot` → `/`, `home`, `nix`, `persist`.
+   with subvolumes `sysroot` → `/`, `home` → `/persist/home`, `nix`, `persist`.
 
 4. Login hash (read at activation from persist; not in git):
 
@@ -61,17 +61,21 @@ same one is fine.
    The installed system has `root` locked (`hashedPassword = "!"`); shrimp
    sudoes.
 
-6. Put the flake on the persistent home:
+6. Put the flake on the persistent home subvolume. That subvolume is
+   mounted at `/persist/home`, not `/home` (`/home` is on `sysroot` and
+   the next boot wipes it):
 
    ```
-   sudo mkdir -p /mnt/home/shrimp/Documents
-   sudo cp -a . /mnt/home/shrimp/Documents/nix-config
-   sudo chown -R 1000:1000 /mnt/home/shrimp
+   sudo mkdir -p /mnt/persist/home/shrimp/Documents
+   sudo cp -a . /mnt/persist/home/shrimp/Documents/nix-config
+   sudo chown -R 1000:1000 /mnt/persist/home/shrimp
    ```
 
 7. `sudo umount -R /mnt`, reboot, pull the USB. Unlock LUKS, log in as
-   `shrimp`. `findmnt /` should show `subvol=/sysroot`. `/persist` should be
-   mounted. The next reboot wipes `sysroot`; home, nix, and persist stay.
+   `shrimp`. `findmnt /` should show `subvol=/sysroot`. `/persist` and
+   `/persist/home` should be mounted. The next reboot wipes `sysroot`
+   (including `/home`, except the whitelist in `impermanence.nix`).
+   nix, persist, and the home subvolume stay.
 
 8. After first login:
 
@@ -94,7 +98,7 @@ hosts/framework16/
   default.nix                     this machine
   hardware.nix                    kernel modules only
   disko.nix                       GPT + LUKS + btrfs; enableConfig = true
-  impermanence.nix                persist whitelist + initrd rollback
+  impermanence.nix                system + home whitelist, initrd rollback
   borg.nix                        borg job, off until a remote repo
   stylix.nix                      palette/fonts/cursor (catppuccin-mocha)
 home/                             HM module (deployed by nixos-rebuild)
@@ -112,11 +116,14 @@ secrets/secrets.nix               agenix recipients (CLI only)
 LUKS, and swap. `hardware.nix` is modules and CPU only. Formatting is the
 disko CLI in the install section, never `nixos-rebuild`.
 
-**Ephemeral `/`.** `sysroot` is wiped in initrd (systemd unit
-`rollback-sysroot`, not `postResumeCommands`). `/home` and `/nix` stay.
-State that must survive is the list in `impermanence.nix` plus
-`/persist/secrets/shrimp-password`. Full-home impermanence is a later
-project.
+**Ephemeral `/` and `~/`.** `sysroot` is wiped in initrd (systemd unit
+`rollback-sysroot`, not `postResumeCommands`). `/nix` stays. The `home`
+subvolume is mounted at `/persist/home` and is not wiped; `~/` is a
+directory on `sysroot`. `environment.persistence."/persist".users.shrimp`
+bind-mounts the whitelist back onto `~/`. State that must survive is
+that list, the system list in `impermanence.nix`, and
+`/persist/secrets/shrimp-password`. Activate with `just rebuild-boot`
+and a reboot, not `just r` — see the comment in `impermanence.nix`.
 
 **Home Manager is a NixOS module.** One rebuild deploys OS and home.
 `useGlobalPkgs` shares `pkgs` (including `allowUnfree`). Firefox add-ons
@@ -208,7 +215,6 @@ Not required to install. Do these when the machine is boring:
 
 - Hyprland (only when GNOME annoys you; redo screenshots, idle, portals, lid)
 - Steam + gamemode + 32-bit graphics; NVIDIA bay as a **specialisation**, not stuffed into the iGPU host
-- Home impermanence after persist+Borg are boring
 - `nix-vscode-extensions` (see TODO in `home/vscode.nix`)
 - nixvim/nvf when `nvim.lua` outgrows this file
 - Plymouth + quiet boot

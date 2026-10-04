@@ -41,6 +41,10 @@
   users.users.root.hashedPassword = "!";
   users.users.shrimp = {
     isNormalUser = true;
+    # Matches the files already on the home subvolume. Pinned so a
+    # lost /var/lib/nixos cannot renumber this user. That directory
+    # still holds dynamically allocated service uids.
+    uid = 1000;
     description = "shrimp";
     shell = pkgs.fish;
     extraGroups = [

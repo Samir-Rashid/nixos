@@ -32,6 +32,7 @@
     gh
     wl-clipboard # neovim clipboard=unnamedplus on Wayland
     keepassxc # native host for keepassxc-browser
+    tree
   ];
 
   programs.delta = {
