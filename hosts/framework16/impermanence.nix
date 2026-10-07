@@ -38,8 +38,7 @@ in
       "/var/lib/nixos"
       # Not the whole directory: that keeps failed-unit state.
       # timers so Persistent= calendar jobs (nix gc) do not look missed
-      # and fire on every boot. random-seed for entropy across boots.
-      "/var/lib/systemd/random-seed"
+      # and fire on every boot.
       "/var/lib/systemd/timers"
       "/var/lib/bluetooth"
       "/var/lib/fprint"
@@ -54,6 +53,9 @@ in
     ];
     files = [
       "/etc/machine-id"
+      # systemd's entropy seed is a 32-byte file. Listing it as a
+      # directory makes activation mkdir fail because the file exists.
+      "/var/lib/systemd/random-seed"
     ];
 
     # Paths are relative to /home/shrimp. Stored at

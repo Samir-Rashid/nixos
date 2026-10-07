@@ -40,9 +40,21 @@ vim.keymap.set("n", "<leader>fg", telescope.live_grep, { desc = "Live grep" })
 vim.keymap.set("n", "<leader>fb", telescope.buffers, { desc = "Buffers" })
 vim.keymap.set("n", "<leader>fh", telescope.help_tags, { desc = "Help tags" })
 
-require("nvim-treesitter.configs").setup({
-  highlight = { enable = true },
-  indent = { enable = true },
+-- The nvim-treesitter rewrite dropped nvim-treesitter.configs. Parsers
+-- and queries are installed by Nix (withPlugins). Highlight and indent
+-- are opt-in; enable them only when a parser exists for this filetype.
+vim.api.nvim_create_autocmd("FileType", {
+  callback = function(ev)
+    if ev.match == "" then
+      return
+    end
+    local lang = vim.treesitter.language.get_lang(ev.match) or ev.match
+    if not vim.treesitter.language.add(lang) then
+      return
+    end
+    vim.treesitter.start(ev.buf, lang)
+    vim.bo[ev.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+  end,
 })
 
 local cmp = require("cmp")

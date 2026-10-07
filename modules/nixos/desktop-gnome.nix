@@ -6,6 +6,17 @@
 
   services.displayManager.gdm.enable = true;
   services.desktopManager.gnome.enable = true;
+
+  # The greeter is the gdm user, not shrimp, and its dconf db is on the
+  # wiped root. Same housekeeping flag as home/gnome.nix, or the
+  # donation notification is back at the login screen every boot.
+  programs.dconf.profiles.gdm.databases = [
+    {
+      settings."org/gnome/settings-daemon/plugins/housekeeping" = {
+        donation-reminder-enabled = false;
+      };
+    }
+  ];
   services.xserver.xkb = {
     layout = "us";
     variant = "";

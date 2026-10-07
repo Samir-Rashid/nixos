@@ -28,7 +28,6 @@
     fzf
     bat
     btop
-    nix-output-monitor # `nom` — nix with a nicer build log
     gh
     wl-clipboard # neovim clipboard=unnamedplus on Wayland
     keepassxc # native host for keepassxc-browser
@@ -76,6 +75,14 @@
   programs.direnv = {
     enable = true;
     nix-direnv.enable = true;
+  };
+
+  # `nom` on PATH, and fish wraps `nix build` / `shell` / `develop` with it.
+  # `nh os switch` already calls nom unless passed --no-nom.
+  programs.nix-your-shell = {
+    enable = true;
+    enableFishIntegration = true;
+    nix-output-monitor.enable = true;
   };
 
   home.sessionVariables = {
