@@ -31,8 +31,6 @@
     agenix = {
       url = "github:ryantm/agenix";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.darwin.follows = "";
-      inputs.home-manager.follows = "home-manager";
     };
 
     # Firefox add-ons (rycee). Not applied as a global overlay; see
@@ -88,9 +86,7 @@
           stylix.nixosModules.stylix
           home-manager.nixosModules.home-manager
           nix-index-database.nixosModules.nix-index
-          {
-            nixpkgs.overlays = import ./overlays { inherit grok-bot-nix; };
-          }
+          { nixpkgs.overlays = [ grok-bot-nix.overlays.default ]; }
           ./hosts/framework16
         ];
       };

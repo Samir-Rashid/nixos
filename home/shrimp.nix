@@ -57,17 +57,8 @@
 
   programs.zoxide.enable = true;
 
-  programs.bash = {
-    enable = true;
-    enableCompletion = true;
-    shellAliases = {
-      ls = "eza";
-      ll = "eza -l";
-      la = "eza -la";
-      cat = "bat";
-      rebuild = "nh os switch";
-    };
-  };
+  # POSIX scripts. Interactive aliases live in fish.nix.
+  programs.bash.enable = true;
 
   programs.starship.enable = true;
   # Fish/bash integrations default on when those shells are enabled.
@@ -86,13 +77,8 @@
     nix-output-monitor.enable = true;
   };
 
-  home.sessionVariables = {
-    EDITOR = "nvim";
-    VISUAL = "nvim";
-    TERMINAL = "ghostty";
-  };
-
-  # GNOME color-scheme / GTK / cursor come from Stylix now.
+  # EDITOR and VISUAL come from programs.neovim.defaultEditor.
+  home.sessionVariables.TERMINAL = "ghostty";
 
   # Compatibility floor, same generation as system.stateVersion. Do not bump.
   home.stateVersion = "26.11";

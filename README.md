@@ -90,8 +90,7 @@ same one is fine.
 ## Layout
 
 ```
-flake.nix                         inputs + nixosConfigurations.framework16
-overlays/default.nix              grok-bot (not NUR)
+flake.nix                         inputs (grok-bot overlay included) + framework16
 modules/nixos/                    nix, GNOME, locale, ssh (off), HM
 Justfile                          just r / just build / just secret …
 hosts/framework16/

@@ -1,8 +1,5 @@
-# Fish as the interactive shell. Login shell is also fish (set on the
-# NixOS user). Bash stays enabled below in shrimp.nix for POSIX scripts.
-#
-# NixOS `programs.fish.enable` (host) is what puts vendor completions
-# into /etc. This HM module is the actual config: aliases, greeting, hooks.
+# Login shell is fish (set on the user). NixOS programs.fish.enable
+# installs vendor completions; this module is the config.
 { pkgs, ... }:
 
 {

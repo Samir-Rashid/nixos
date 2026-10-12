@@ -28,7 +28,7 @@
 
   programs.nh = {
     enable = true;
-    flake = "/home/shrimp/Documents/nix-config";
+    flake = "/home/shrimp/Documents/code/nixos";
   };
 
   networking.hostName = "framework16";
@@ -60,8 +60,6 @@
     just
     inputs.agenix.packages.${pkgs.stdenv.hostPlatform.system}.default
   ];
-
-  programs.firefox.enable = false;
 
   # Compatibility floor for a 26.11 install. Do not bump.
   system.stateVersion = "26.11";

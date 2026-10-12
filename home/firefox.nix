@@ -1,15 +1,4 @@
-# Firefox via Home Manager so extensions are declarative.
-# Add-ons come from extraSpecialArgs.firefoxAddons (NUR rycee, not a
-# global overlay). Search-engine "extensions" in an AMO export (Amazon,
-# Bing, Google, Wikipedia, …) are not add-ons; DDG is the default search.
-#
-# Skipped on purpose:
-#   Bypass Paywalls*     — gone from AMO / legally messy
-#   CORS Everywhere      — turns the browser into an open proxy
-#   ActivityWatch        — needs the AW server
-#   Video DownloadHelper — needs a native helper daemon
-#   themes               — Dark/Light/Alpenglow/System are built-in
-#   Add-ons Search Detection — built-in
+# Add-ons come from extraSpecialArgs.firefoxAddons (NUR rycee).
 { firefoxAddons, ... }:
 
 {

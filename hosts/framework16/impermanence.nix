@@ -1,23 +1,10 @@
-# Ephemeral `/` and `~/` on btrfs. Disko mounts:
-#   sysroot  → /              wiped each boot (old copies kept ~30d)
-#   home     → /persist/home  existing /home tree, not mounted at ~/
-#   nix      → /nix           persistent
-#   persist  → /persist       system whitelist below
-#   ESP      → /boot
+# sysroot (/) is wiped each boot. ~/ is on sysroot; the whitelist below
+# bind-mounts it back from /persist/home/shrimp. An unlisted path stays
+# on that subvolume and is simply not mounted.
 #
-# ~/ is a directory on sysroot, so it dies with it. The user whitelist
-# bind-mounts paths from /persist/home/shrimp (the old home subvolume)
-# back onto ~/. Nothing is copied or deleted: an unlisted path is still
-# on that subvolume, it just is not mounted into ~/.
-#
-# Activate with `just rebuild-boot` and reboot, not `just r`. Switch
-# starts the binds on this boot. If /persist/home is not mounted yet,
-# those binds cover ~/ with empty directories until reboot. The previous
-# boot entry still mounts this subvolume at /home.
-#
-# Rollback is a systemd initrd unit. postResumeCommands is rejected on
-# systemd stage 1. Ordered after local-fs-pre so it does not run on
-# hibernate resume (nix-community/impermanence#250).
+# A new bind needs `just rebuild-boot` and a reboot, not `just r`.
+# Switch mounts the binds before /persist/home exists and covers ~/
+# with empty directories until reboot.
 { ... }:
 
 let
@@ -66,7 +53,6 @@ in
     users.shrimp = {
       directories = [
         "Documents"
-        "Downloads"
         {
           directory = ".ssh";
           mode = "0700";

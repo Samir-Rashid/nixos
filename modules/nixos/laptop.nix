@@ -12,14 +12,9 @@
   # protectKernelImage sets kexec_load_disabled, which blocks hibernation.
   security.protectKernelImage = false;
 
-  hardware.graphics = {
-    enable = true;
-    extraPackages = with pkgs; [
-      libva
-      libva-vdpau-driver
-      libvdpau-va-gl
-    ];
-  };
+  # Mesa (including VA-API) comes with hardware.graphics.enable.
+  # The VDPAU translation drivers fight AMD's own decoder.
+  hardware.graphics.enable = true;
 
   services.fstrim.enable = true;
 

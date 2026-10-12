@@ -12,24 +12,13 @@ help:
 alias u := update
 alias r := rebuild
 
-# `just update` → all inputs; `just update nixpkgs` → one input.
-# Do not update stylix without nixpkgs (or vice versa); see flake.nix.
+# `just update` updates every input. `just update nixpkgs` updates one.
 update INPUT="":
     nix flake update {{INPUT}}
 
-update-all:
-    nix flake update
-
-# rebuild this host. WHEN is switch | boot | test | dry-build | dry-activate | build
+# WHEN is switch | boot | test | dry-build | dry-activate | build
 rebuild WHEN="switch":
     sudo nixos-rebuild {{WHEN}} --flake .#{{hostname}}
-
-rebuild-impure WHEN="switch":
-    sudo nixos-rebuild {{WHEN}} --flake .#{{hostname}} --impure
-
-# switch this machine (uses uname -n, which must match nixosConfigurations.<name>)
-rebuild-here:
-    sudo nixos-rebuild switch --flake .#{{hostname}}
 
 rebuild-boot:
     sudo nixos-rebuild boot --flake .#{{hostname}}
@@ -41,10 +30,6 @@ build:
 # eval-only sanity check
 check:
     nix eval --raw .#nixosConfigurations.{{hostname}}.config.system.build.toplevel.drvPath
-
-# QEMU VM of this config (does not touch the running system)
-vm:
-    nixos-rebuild build-vm --flake .#{{hostname}}
 
 fmt:
     nix fmt

@@ -6,8 +6,10 @@
   stylix.targets.firefox.profileNames = [ "default" ];
 
   # GNOME already owns look-and-feel. Stylix's qt target wants qtct, which
-  # fights Adwaita.
+  # fights Adwaita. rofi is not installed; this pin still sets the
+  # renamed programs.rofi.font option.
   stylix.targets.qt.enable = false;
+  stylix.targets.rofi.enable = false;
 
   # HM 26.11 wants this explicit; Stylix still sets the theme/package.
   home.pointerCursor.enable = true;

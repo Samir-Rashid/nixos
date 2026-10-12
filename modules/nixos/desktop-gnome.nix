@@ -17,14 +17,9 @@
       };
     }
   ];
-  services.xserver.xkb = {
-    layout = "us";
-    variant = "";
-  };
 
   environment.sessionVariables.NIXOS_OZONE_WL = "1";
 
-  services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;

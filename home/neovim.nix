@@ -1,8 +1,4 @@
-# Home Manager's programs.neovim, not nixvim/nvf.
-#
-# Why this and not nixvim: you can read every line, plugins are just
-# nixpkgs vimPlugins, and the lua lives in a normal nvim.lua. nixvim is
-# a great next step once this file starts to hurt.
+# Plugins are nixpkgs vimPlugins. Lua is nvim.lua.
 { pkgs, ... }:
 
 {
