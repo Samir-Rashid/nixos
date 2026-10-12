@@ -31,6 +31,7 @@
     gh
     wl-clipboard # neovim clipboard=unnamedplus on Wayland
     keepassxc # native host for keepassxc-browser
+    signal-desktop
     tree
   ];
 

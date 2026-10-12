@@ -2,9 +2,6 @@
   description = "shrimp's NixOS config — Framework 16 (AMD Ryzen 7040)";
 
   inputs = {
-    # Pinned in flake.lock to 2026-07-14 (18b9261). Do not `just update-all`
-    # or update stylix without nixpkgs (and vice versa): stylix master already
-    # talks to services.displayManager.regreet, which this nixpkgs lacks.
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
 
     home-manager = {
@@ -45,8 +42,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Same week as nixpkgs (c8ccc31, July 2026). Never update stylix or
-    # nixpkgs alone — see nixpkgs comment above.
     stylix = {
       url = "github:nix-community/stylix/c8ccc31f3ea29dc3eb5b54945e5eb549529491d6";
       inputs.nixpkgs.follows = "nixpkgs";

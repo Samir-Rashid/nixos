@@ -25,8 +25,8 @@
   programs.nix-index.enable = true;
   programs.nix-index-database.comma.enable = true;
 
-  services.journald.extraConfig = ''
-    SystemMaxUse=512M
-    SystemMaxFileSize=64M
-  '';
+  services.journald.settings.Journal = {
+    SystemMaxUse = "512M";
+    SystemMaxFileSize = "64M";
+  };
 }

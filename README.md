@@ -91,7 +91,7 @@ same one is fine.
 
 ```
 flake.nix                         inputs + nixosConfigurations.framework16
-overlays/default.nix              grok-bot + grok-build (not NUR)
+overlays/default.nix              grok-bot (not NUR)
 modules/nixos/                    nix, GNOME, locale, ssh (off), HM
 Justfile                          just r / just build / just secret …
 hosts/framework16/
@@ -103,7 +103,6 @@ hosts/framework16/
   stylix.nix                      palette/fonts/cursor (catppuccin-mocha)
 home/                             HM module (deployed by nixos-rebuild)
   firefox.nix                     addons from extraSpecialArgs.firefoxAddons
-pkgs/grok-build.nix               grok CLI overlay (nixpkgs pin is 0.2.93)
 secrets/secrets.nix               agenix recipients (CLI only)
 ```
 
@@ -138,8 +137,6 @@ PSR workaround, keyboard HID. Do not re-encode those.
 **Neovim via `programs.neovim`.** Servers in `extraPackages`, not mason.nvim.
 
 **Stylix** is the one palette. NixOS module only (it auto-imports into HM).
-`enableReleaseChecks` is off: nixpkgs and stylix are July 2026 pins, not a
-named release pair.
 
 **Fish** is login + interactive. NixOS `programs.fish.enable` for vendor
 completions; HM owns the config.
@@ -172,8 +169,8 @@ just update grok-bot-nix
 just r
 ```
 
-Grok Build (`grok` / `agent`) is `pkgs/grok-build.nix`. This nixpkgs pin
-still has 0.2.93; bump `version` + `hash` there. `GROK_DISABLE_AUTOUPDATER=1`.
+Grok Build (`grok` / `agent`) is nixpkgs `pkgs.grok-build`.
+`GROK_DISABLE_AUTOUPDATER=1`.
 
 ## agenix
 

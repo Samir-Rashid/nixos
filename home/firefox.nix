@@ -71,4 +71,23 @@
       ];
     };
   };
+
+  # Epiphany wins when nothing claims http/https. ~/.config is wiped on
+  # boot; home-manager rewrites this file on activation. The file is
+  # read-only, so other handlers (grok.nix) have to be declared too.
+  xdg.mimeApps = {
+    enable = true;
+    defaultApplications = {
+      "text/html" = "firefox.desktop";
+      "application/xhtml+xml" = "firefox.desktop";
+      "x-scheme-handler/http" = "firefox.desktop";
+      "x-scheme-handler/https" = "firefox.desktop";
+    };
+  };
+
+  # A regular file is already at this path (not a Home Manager symlink).
+  # Activation refuses to replace it unless this is set.
+  xdg.configFile."mimeapps.list".force = true;
+
+  home.sessionVariables.BROWSER = "firefox";
 }

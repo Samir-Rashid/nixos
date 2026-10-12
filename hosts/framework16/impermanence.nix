@@ -89,6 +89,8 @@ in
         ".local/state/nvim/shada"
         # Sessions, memory, auth.json. The nix package is not in here.
         ".grok"
+        # Linked device, keys, message db. Cache stays off.
+        ".config/Signal"
       ];
       files = [
         ".config/gtk-3.0/bookmarks"

@@ -4,7 +4,4 @@
 
 [
   grok-bot-nix.overlays.default
-  (final: _prev: {
-    grok-build = final.callPackage ../pkgs/grok-build.nix { };
-  })
 ]

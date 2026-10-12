@@ -6,8 +6,8 @@
 #   In-app updater is a no-op under Nix. Pick up new pins with:
 #     just update grok-bot-nix
 #
-# grok-build: local overlay (pkgs/grok-build.nix). This nixpkgs pin still
-#   has 0.2.93; bump version+hash there when you want a newer CLI.
+# grok-build: nixpkgs (pkgs.grok-build). In-app update cannot write the
+#   store path; bump it with the nixpkgs pin.
 { pkgs, ... }:
 
 {
@@ -15,6 +15,13 @@
     pkgs.grok-bot
     pkgs.grok-build
   ];
+
+  # mimeapps.list is owned by Home Manager (firefox.nix). sand:// and
+  # grokbot:// are the login redirects; the desktop file already claims them.
+  xdg.mimeApps.defaultApplications = {
+    "x-scheme-handler/grokbot" = "grok-bot.desktop";
+    "x-scheme-handler/sand" = "grok-bot.desktop";
+  };
 
   # Official installer drops a self-updating copy in ~/.grok/bin. Nix owns
   # PATH now; don't let the TUI try to replace the store binary.
