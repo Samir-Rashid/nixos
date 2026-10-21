@@ -17,7 +17,7 @@ in
 
   environment.persistence."/persist" = {
     hideMounts = true;
-    # GNOME trash on bind mounts (Documents, Downloads, …).
+    # GNOME trash on bind mounts (Documents and the other directories below).
     allowTrash = true;
     directories = [
       "/var/log"
@@ -53,6 +53,9 @@ in
     users.shrimp = {
       directories = [
         "Documents"
+        # Electron profile: cookies, sand-secrets, keyring-backed session.
+        # ~/.grok is the CLI, not this app.
+        ".config/Grok Bot"
         {
           directory = ".ssh";
           mode = "0700";
@@ -77,6 +80,10 @@ in
         ".grok"
         # Linked device, keys, message db. Cache stays off.
         ".config/Signal"
+        # Mail, keys, address book. profiles.ini is rewritten by Home Manager.
+        ".thunderbird"
+        # Rootless podman images and named volumes.
+        ".local/share/containers"
       ];
       files = [
         ".config/gtk-3.0/bookmarks"

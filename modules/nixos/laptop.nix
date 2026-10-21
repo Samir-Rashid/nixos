@@ -2,7 +2,21 @@
 { pkgs, ... }:
 
 {
-  boot.kernelPackages = pkgs.linuxPackages_latest;
+  # nixos-hardware adds framework-laptop-kmod. This nixpkgs requires each
+  # out-of-tree module to ship a .ko.cer, and that package only installs
+  # the .ko, so the modules build dies on the missing certificate.
+  boot.kernelPackages = pkgs.linuxPackages_latest.extend (
+    kfinal: kprev: {
+      framework-laptop-kmod = kprev.framework-laptop-kmod.overrideAttrs (_old: {
+        # The aggregate build concatenates each out-of-tree .ko.cer.
+        # Leave the .ko unsigned. This kernel does not enroll out-of-tree
+        # certificates, and a signature it cannot check is rejected.
+        postInstall = ''
+          touch "$out/lib/modules/${kfinal.kernel.modDirVersion}/extra/framework_laptop.ko.cer"
+        '';
+      });
+    }
+  );
 
   # Disko swap has resumeDevice = true → this mapper. Same LUKS passphrase
   # as cryptroot so initrd can reuse it (boot.initrd.luks.reusePassphrases).

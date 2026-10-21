@@ -6,5 +6,7 @@
     ./ssh.nix
     ./home-manager.nix
     ./laptop.nix
+    ./podman.nix
+    ./linkserver.nix
   ];
 }

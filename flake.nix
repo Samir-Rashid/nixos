@@ -56,6 +56,13 @@
       url = "github:nix-community/nix-index-database";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # NXP makeself installer. Untracked in the firmware repo, so this
+    # input is the file itself rather than that checkout.
+    linkserver-deb = {
+      url = "path:/home/shrimp/Documents/code/firmware/LinkServer_26.9.130.x86_64.deb.bin";
+      flake = false;
+    };
   };
 
   outputs =
@@ -71,6 +78,7 @@
       stylix,
       grok-bot-nix,
       nix-index-database,
+      linkserver-deb,
       ...
     }@inputs:
     {
