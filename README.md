@@ -1,6 +1,7 @@
 # nix-config
 
-Framework Laptop 16 (AMD Ryzen 7 7840HS). NixOS unstable, flakes.
+Framework Laptop 16 (AMD Ryzen 7 7840HS) and a Beelink NUC (`beelink`).
+NixOS unstable, flakes. `just r` builds `.#$(uname -n)`.
 
 This repo is the source of truth. Install from it; do not layer it onto an
 existing installer disk. `nixos-rebuild switch` on the current machine
@@ -87,12 +88,74 @@ same one is fine.
    Use the **same** LUKS passphrase for cryptroot and cryptswap so hibernate
    resume only prompts once. Skip step 4 and GDM will not accept a login.
 
+## Beelink
+
+Home server. Hostname `beelink`. Forgejo at `git.godsped.com`, Beszel at
+`status.godsped.com`. Caddy answers HTTP-01 and gets certificates from
+Let's Encrypt production. WireGuard listens on UDP 51820 as `10.100.0.1/24`
+and generates its key at `/var/lib/wireguard/wg0`. SSH is key-only for
+`shrimp`. Forgejo's login user is `forgejo`.
+
+Public registration is off. After DNS for both names points at this box
+and the first boot:
+
+```
+sudo -u forgejo env FORGEJO_WORK_DIR=/var/lib/forgejo \
+  forgejo admin user create --admin \
+  --username shrimp --email Samir-Rashid@godsped.com
+```
+
+Beszel's agent stays stopped until the hub has issued a key and token:
+
+```
+sudo install -d -o beszel-agent -g beszel-agent /var/lib/beszel-agent
+sudo install -m 640 -o root -g beszel-agent key /var/lib/beszel-agent/key
+sudo install -m 640 -o root -g beszel-agent token /var/lib/beszel-agent/token
+sudo systemctl start beszel-agent
+```
+
+Install from a NixOS ISO. This wipes the disk named in
+`hosts/beelink/disko.nix`. Set that by-id path first. The flake input
+`linkserver-deb` is a file on the laptop
+(`/home/shrimp/Documents/code/firmware/LinkServer_26.9.130.x86_64.deb.bin`);
+the installer evaluates the whole flake, so that path has to exist there
+too (copy the file) or build `.#beelink` on the laptop and install the
+closure.
+
+1. Edit `hosts/beelink/disko.nix`. Confirm `ls -l` shows that by-id node.
+
+2. Format and mount:
+
+   ```
+   sudo nix --extra-experimental-features "nix-command flakes" run .#disko -- \
+     --mode destroy,format,mount --flake .#beelink
+   ```
+
+3. Login hash (read at activation; not in git):
+
+   ```
+   sudo mkdir -p /mnt/var/lib/secrets
+   mkpasswd -m yescrypt | sudo tee /mnt/var/lib/secrets/shrimp-password
+   sudo chmod 600 /mnt/var/lib/secrets/shrimp-password
+   ```
+
+4. Install: `sudo nixos-install --flake .#beelink`. Root's installer
+   password is not the installed system; root is locked. `shrimp` sudoes.
+
+5. Copy this repo to `/mnt/home/shrimp/Documents/code/nixos` and
+   `chown -R 1000:1000` that home. Reboot, unlock LUKS, SSH in from the
+   laptop key. Point `git.godsped.com` and `status.godsped.com` at the
+   machine before expecting certificates.
+
+`just r` on this host is `nixos-rebuild switch --flake .#beelink`.
+
 ## Layout
 
 ```
-flake.nix                         inputs (grok-bot overlay included) + framework16
+flake.nix                         inputs + framework16 and beelink
 modules/nixos/                    nix, GNOME, locale, ssh (off), HM
 Justfile                          just r / just build / just secret …
+hosts/beelink/                    NUC: disko, ssh, forgejo, caddy, wireguard, beszel
 hosts/framework16/
   default.nix                     this machine
   hardware.nix                    kernel modules only

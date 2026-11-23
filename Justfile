@@ -44,6 +44,9 @@ rekey:
 
 # DESTRUCTIVE. Refuses to run from a booted install — see README.
 disko:
-    @echo "This would WIPE the Samsung NVMe. Refusing to run from just."
-    @echo "From a NixOS live USB (locked disko from this flake):"
+    @echo "This would WIPE a disk. Refusing to run from just."
+    @echo "From a NixOS live USB, after editing that host's disko.nix:"
+    @echo "  framework16  Samsung NVMe in hosts/framework16/disko.nix"
+    @echo "  beelink      by-id path in hosts/beelink/disko.nix"
     @echo "  sudo nix run .#disko -- --mode destroy,format,mount --flake .#framework16"
+    @echo "  sudo nix run .#disko -- --mode destroy,format,mount --flake .#beelink"

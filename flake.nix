@@ -1,5 +1,5 @@
 {
-  description = "shrimp's NixOS config — Framework 16 (AMD Ryzen 7040)";
+  description = "shrimp's NixOS config — Framework 16 and Beelink NUC";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
@@ -82,7 +82,8 @@
       ...
     }@inputs:
     {
-      # Must match networking.hostName and Justfile `uname -n` (framework16).
+      # Each name must match that host's networking.hostName.
+      # `just r` builds .#$(uname -n).
       nixosConfigurations.framework16 = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         specialArgs = { inherit inputs; };
@@ -99,7 +100,31 @@
         ];
       };
 
-      packages.x86_64-linux.disko = disko.packages.x86_64-linux.disko;
+      # Beelink NUC. No desktop modules. Disko, SSH, Forgejo, Caddy.
+      nixosConfigurations.beelink = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        specialArgs = { inherit inputs; };
+        modules = [
+          disko.nixosModules.disko
+          agenix.nixosModules.default
+          nix-index-database.nixosModules.nix-index
+          ./hosts/beelink
+        ];
+      };
+
+      packages.x86_64-linux = {
+        disko = disko.packages.x86_64-linux.disko;
+        # The nixpkgs attribute builds from source and is unfree, so Hydra
+        # never caches it. This is the upstream AppImage.
+        bambu-studio =
+          let
+            pkgs = import nixpkgs {
+              system = "x86_64-linux";
+              config.allowUnfree = true;
+            };
+          in
+          pkgs.callPackage ./pkgs/bambu-studio.nix { };
+      };
 
       formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixfmt;
     };
