@@ -1,7 +1,7 @@
 # Forgejo and Beszel stay on localhost. Caddy is the only public HTTP
 # server and the Let's Encrypt client (HTTP-01 on port 80).
 let
-  domain = "godsped.com";
+  domain = "infodump.org";
   forgejoHost = "git.${domain}";
   beszelHost = "status.${domain}";
 in

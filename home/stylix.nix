@@ -10,6 +10,9 @@
   # renamed programs.rofi.font option.
   stylix.targets.qt.enable = false;
   stylix.targets.rofi.enable = false;
+  # This stylix pin still assigns programs.wayprompt. Home Manager removed
+  # that module after nixpkgs dropped the unmaintained package.
+  stylix.targets.wayprompt.enable = false;
 
   # HM 26.11 wants this explicit; Stylix still sets the theme/package.
   home.pointerCursor.enable = true;

@@ -26,12 +26,21 @@
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.systemd-boot.configurationLimit = 8;
 
+  boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
+
   programs.nh = {
     enable = true;
     flake = "/home/shrimp/Documents/code/nixos";
   };
 
   networking.hostName = "framework16";
+
+  # Kernel defaults are 64. One above, on this host only.
+  boot.kernel.sysctl = {
+    "net.ipv4.ip_default_ttl" = 65;
+    "net.ipv6.conf.all.hop_limit" = 65;
+    "net.ipv6.conf.default.hop_limit" = 65;
+  };
 
   # --- users ---
   # Password hash lives on persist (created during install, see README).

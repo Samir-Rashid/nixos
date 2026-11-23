@@ -3,6 +3,8 @@
 
 {
   nixpkgs.config.allowUnfree = true; # VS Code, Copilot, Grok Bot, Grok Build
+  # grok-bot wraps electron_42. nixpkgs marks every Electron before 43 as EOL.
+  nixpkgs.config.permittedInsecurePackages = [ "electron-42.11.18" ];
   nix.channel.enable = false;
   nix.settings = {
     experimental-features = [

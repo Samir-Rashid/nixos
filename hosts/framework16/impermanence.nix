@@ -92,8 +92,8 @@ in
   };
 
   boot.initrd.supportedFilesystems = [ "btrfs" ];
-  boot.initrd.systemd.enable = true;
 
+  # Initrd is systemd-only. boot.initrd.systemd.enable was removed.
   boot.initrd.systemd.services.rollback-sysroot = {
     description = "Rollback btrfs sysroot subvolume";
     wantedBy = [ "initrd.target" ];

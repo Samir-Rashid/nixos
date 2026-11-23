@@ -90,8 +90,8 @@ same one is fine.
 
 ## Beelink
 
-Home server. Hostname `beelink`. Forgejo at `git.godsped.com`, Beszel at
-`status.godsped.com`. Caddy answers HTTP-01 and gets certificates from
+Home server. Hostname `beelink`. Forgejo at `git.infodump.org`, Beszel at
+`status.infodump.org`. Caddy answers HTTP-01 and gets certificates from
 Let's Encrypt production. WireGuard listens on UDP 51820 as `10.100.0.1/24`
 and generates its key at `/var/lib/wireguard/wg0`. SSH is key-only for
 `shrimp`. Forgejo's login user is `forgejo`.
@@ -144,7 +144,7 @@ closure.
 
 5. Copy this repo to `/mnt/home/shrimp/Documents/code/nixos` and
    `chown -R 1000:1000` that home. Reboot, unlock LUKS, SSH in from the
-   laptop key. Point `git.godsped.com` and `status.godsped.com` at the
+   laptop key. Point `git.infodump.org` and `status.infodump.org` at the
    machine before expecting certificates.
 
 `just r` on this host is `nixos-rebuild switch --flake .#beelink`.

@@ -12,15 +12,15 @@ appimageTools.wrapType2 rec {
 
   src = fetchurl {
     url = "https://github.com/bambulab/BambuStudio/releases/download/v${version}/BambuStudio_ubuntu24.04-v${version}-20260820225108.AppImage";
-    hash = "sha256-1QGxA/rFQkUT7A6Na8FF+zBxndLH2U1zINcjdAyBp/0=";
+    hash = "sha256-1QGxA/rFQkUT7A6Na8FF+zBxneLH2U1zINcjdAyBp/0=";
   };
 
   extraPkgs = pkgs: [
-    glib-networking
-    webkitgtk_4_1
-    gst_all_1.gst-plugins-base
-    gst_all_1.gst-plugins-good
-    gst_all_1.gst-plugins-bad
+    pkgs.glib-networking
+    pkgs.webkitgtk_4_1
+    pkgs.gst_all_1.gst-plugins-base
+    pkgs.gst_all_1.gst-plugins-good
+    pkgs.gst_all_1.gst-plugins-bad
   ];
 
   meta = {

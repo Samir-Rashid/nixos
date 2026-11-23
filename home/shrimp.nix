@@ -33,6 +33,9 @@
     keepassxc # native host for keepassxc-browser
     signal-desktop
     tree
+    kicad
+    obsidian
+    pinta
   ];
 
   programs.delta = {
