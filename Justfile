@@ -34,11 +34,12 @@ check:
 fmt:
     nix fmt
 
-# encrypt/edit a secret listed in secrets/secrets.nix (e.g. `just secret borg-passphrase`)
+# encrypt/edit a secret listed in secrets/agenix-rules.nix
+# (e.g. `just secret borg-passphrase`)
 secret NAME:
     cd secrets && agenix -e {{NAME}}.age
 
-# re-encrypt all secrets after adding a key to secrets.nix
+# re-encrypt all secrets after adding a key to agenix-rules.nix
 rekey:
     cd secrets && agenix --rekey
 

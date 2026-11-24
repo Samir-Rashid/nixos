@@ -16,6 +16,7 @@
     ./disko.nix
     ./impermanence.nix
     ./borg.nix
+    ./nordvpn.nix
     ./stylix.nix
   ];
 

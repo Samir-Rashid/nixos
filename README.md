@@ -165,7 +165,7 @@ hosts/framework16/
   stylix.nix                      palette/fonts/cursor (catppuccin-mocha)
 home/                             HM module (deployed by nixos-rebuild)
   firefox.nix                     addons from extraSpecialArgs.firefoxAddons
-secrets/secrets.nix               agenix recipients (CLI only)
+secrets/agenix-rules.nix          agenix recipients (CLI only)
 ```
 
 `nixosConfigurations.framework16`, `networking.hostName`, and Justfile
@@ -236,7 +236,7 @@ Grok Build (`grok` / `agent`) is nixpkgs `pkgs.grok-build`.
 
 ## agenix
 
-`secrets/secrets.nix` is **not** imported by NixOS; only the CLI reads it.
+`secrets/agenix-rules.nix` is **not** imported by NixOS; only the CLI reads it.
 
 Encrypt today with the user key in that file. After install, add
 `/etc/ssh/ssh_host_ed25519_key.pub` to `systems` and `just rekey`. Without
